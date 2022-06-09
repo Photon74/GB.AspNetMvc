@@ -7,6 +7,7 @@ namespace GB.AspNetMvc.Models.Services
     public class ProductService : IProductService
     {
         private readonly ICatalogRepository _catalogRepository;
+        private readonly object _locker = new ();
 
         public ProductService(ICatalogRepository catalogRepository)
         {
@@ -15,29 +16,38 @@ namespace GB.AspNetMvc.Models.Services
 
         public List<ProductDto> GetProducts()
         {
-            var products = _catalogRepository.GetAllProducts();
-            return products.Select(product => 
-                new ProductDto 
-                    { 
+            lock (_locker)
+            {
+                var products = _catalogRepository.GetAllProducts();
+                return products.Select(product =>
+                    new ProductDto
+                    {
                         Name = product.Name,
                         Category = product.Category
-                    }).ToList();
+                    }).ToList(); 
+            }
         }
 
         public void AddProduct(ProductDto productDto)
         {
-            var product = new Product
+            lock (_locker)
             {
-                Id = Guid.NewGuid(),
-                Name = productDto.Name,
-                Category = productDto.Category,
-            };
-            _catalogRepository.AddProduct(product);
+                var product = new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = productDto.Name,
+                    Category = productDto.Category,
+                };
+                _catalogRepository.AddProduct(product); 
+            }
         }
 
         public void DeleteProduct(Guid id)
         {
-            _catalogRepository.DeleteProduct(id);
+            lock (_locker)
+            {
+                _catalogRepository.DeleteProduct(id); 
+            }
         }
     }
 }

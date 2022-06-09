@@ -5,6 +5,7 @@ namespace GB.AspNetMvc.Models.Repository
     public class CatalogInMemory : ICatalogRepository
     {
         private List<Product> Products { get; set; } = new ();
+        //private List Values { get; set; }
 
 
         public IReadOnlyList<Product> GetAllProducts()
