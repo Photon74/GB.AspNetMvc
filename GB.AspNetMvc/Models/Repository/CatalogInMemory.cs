@@ -4,7 +4,7 @@ namespace GB.AspNetMvc.Models.Repository
 {
     public class CatalogInMemory : ICatalogRepository
     {
-        private List<Product> Products { get; set; } = new ();
+        private List<Product> Products { get; set; }
         //private List Values { get; set; }
 
 
@@ -15,6 +15,7 @@ namespace GB.AspNetMvc.Models.Repository
 
         public void AddProduct(Product product)
         {
+            if(Products == null) Products = new List<Product>();
             Products.Add(product);
         }
 

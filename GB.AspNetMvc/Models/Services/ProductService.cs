@@ -19,19 +19,21 @@ namespace GB.AspNetMvc.Models.Services
             lock (_locker)
             {
                 var products = _catalogRepository.GetAllProducts();
-                return products.Select(product =>
-                    new ProductDto
-                    {
-                        Name = product.Name,
-                        Category = product.Category
-                    }).ToList(); 
+                return products == null
+                    ? new List<ProductDto>()
+                    : products.Select(product =>
+                        new ProductDto
+                        {
+                            Name = product.Name,
+                            Category = product.Category
+                        }).ToList();
             }
         }
 
         public void AddProduct(ProductDto productDto)
         {
-            lock (_locker)
-            {
+            //lock (_locker)
+            //{
                 var product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -39,7 +41,7 @@ namespace GB.AspNetMvc.Models.Services
                     Category = productDto.Category,
                 };
                 _catalogRepository.AddProduct(product); 
-            }
+            //}
         }
 
         public void DeleteProduct(Guid id)
