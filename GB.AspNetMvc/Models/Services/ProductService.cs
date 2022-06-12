@@ -32,16 +32,16 @@ namespace GB.AspNetMvc.Models.Services
 
         public void AddProduct(ProductDto productDto)
         {
-            //lock (_locker)
-            //{
+            lock (_locker)
+            {
                 var product = new Product
                 {
                     Id = Guid.NewGuid(),
                     Name = productDto.Name,
                     Category = productDto.Category,
                 };
-                _catalogRepository.AddProduct(product); 
-            //}
+                _catalogRepository.AddProduct(product);
+            }
         }
 
         public void DeleteProduct(Guid id)
