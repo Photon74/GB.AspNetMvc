@@ -1,0 +1,36 @@
+﻿@model GB.AspNetMvc.Models.DTO.ProductDto 
+@*@model GB.AspNetMvc.Models.ProductsViewModel*@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Добавление продукта";
+}
+
+<div class="text-center">
+    <h1>Добавление продукта</h1>
+</div>
+
+<form method="post">
+    <p>
+        <label asp-for="Name">Продукт</label><br/>
+        <input type="text" asp-for="Name"/>
+        <span asp-validation-for="Name"/>
+    </p>
+    <p>
+        <label asp-for="Category">Категория</label><br/>
+        <select asp-for="Category">
+            <option disabled selected>Выберите категорию</option>
+            <option value="Food">Продукты питания</option>
+            <option value="Clothes">Одежда</option>
+        </select>
+        <span asp-validation-for="Category"/>
+    </p>
+    <p>
+        <input type="submit" class="btn btn-primary" value="Добавить"/>
+        <a asp-action="ProductsList" asp-controller="Catalog" class="btn btn-outline-danger">Отмена</a>
+    </p>
+</form>
+
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.17.0/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
