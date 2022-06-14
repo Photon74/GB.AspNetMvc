@@ -10,9 +10,7 @@
     <a asp-action="AddingProduct" asp-controller="Catalog" class="btn btn-outline-info">Добавить товар</a>
 </p>
 
-@if (ViewBag.Products.Count > 0)
-{
-    <p>Итого продуктов: @ViewBag.Products.Count</p>
+<p>Итого продуктов: @ViewBag.Products.Count</p>
 
     <table class="table table-striped table-hover" style="width:600px;">
         <thead class="table-dark">
@@ -27,4 +25,3 @@
             </tr>
         }
     </table>
-}

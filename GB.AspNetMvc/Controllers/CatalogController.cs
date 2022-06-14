@@ -7,6 +7,7 @@ namespace GB.AspNetMvc.Controllers
     public class CatalogController : Controller
     {
         private readonly IProductService _productService;
+        private Object obj = new();
 
         public CatalogController(IProductService productService)
         {
@@ -17,6 +18,7 @@ namespace GB.AspNetMvc.Controllers
         public IActionResult AddingProduct([FromForm] ProductDto productDto)
         {
             if (!ModelState.IsValid) return View(productDto);
+
             _productService.AddProduct(productDto);
             return RedirectToAction("ProductsList");
         }
@@ -33,6 +35,13 @@ namespace GB.AspNetMvc.Controllers
             return View();
         }
 
-        public List<ProductDto> Products { get; set; }
+        public IActionResult ProductDeleting(Guid id)
+        {
+            _productService.DeleteProduct(id);
+
+            return RedirectToAction("ProductsList");
+        }
+
+        //public List<ProductDto> Products { get; set; }
     }
 }
