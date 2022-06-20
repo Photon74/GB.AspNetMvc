@@ -7,7 +7,6 @@ namespace GB.AspNetMvc.Controllers
     public class CatalogController : Controller
     {
         private readonly IProductService _productService;
-        private Object obj = new();
 
         public CatalogController(IProductService productService)
         {
@@ -31,17 +30,16 @@ namespace GB.AspNetMvc.Controllers
 
         public IActionResult ProductsList()
         {
-            ViewBag.Products = _productService.GetProducts();
-            return View();
+            var Products = _productService.GetProducts();
+            return View(Products);
         }
 
         public IActionResult ProductDeleting(Guid id)
         {
+            //TODO доделать контроллер!
             _productService.DeleteProduct(id);
 
             return RedirectToAction("ProductsList");
         }
-
-        //public List<ProductDto> Products { get; set; }
     }
 }

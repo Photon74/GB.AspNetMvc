@@ -7,7 +7,6 @@ namespace GB.AspNetMvc.Models.Services
     public class ProductService : IProductService
     {
         private readonly ICatalogRepository _catalogRepository;
-        private readonly object _locker = new ();
 
         public ProductService(ICatalogRepository catalogRepository)
         {
@@ -16,40 +15,33 @@ namespace GB.AspNetMvc.Models.Services
 
         public List<ProductDto> GetProducts()
         {
-            lock (_locker)
-            {
-                var products = _catalogRepository.GetAllProducts();
-                return products == null
-                    ? new List<ProductDto>()
-                    : products.Select(product =>
-                        new ProductDto
-                        {
-                            Name = product.Name,
-                            Category = product.Category
-                        }).ToList();
-            }
+            var products = _catalogRepository.GetAllProducts();
+
+            return products == null
+                ? new List<ProductDto>()
+                : products.Select(product =>
+                    new ProductDto
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Category = product.Category
+                    }).ToList();
         }
 
         public void AddProduct(ProductDto productDto)
         {
-            lock (_locker)
+            var product = new Product
             {
-                var product = new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = productDto.Name,
-                    Category = productDto.Category,
-                };
-                _catalogRepository.AddProduct(product);
-            }
+                Id = Guid.NewGuid(),
+                Name = productDto.Name,
+                Category = productDto.Category,
+            };
+            _catalogRepository.AddProduct(product);
         }
 
         public void DeleteProduct(Guid id)
         {
-            lock (_locker)
-            {
-                _catalogRepository.DeleteProduct(id); 
-            }
+            _catalogRepository.DeleteProduct(id);
         }
     }
 }
