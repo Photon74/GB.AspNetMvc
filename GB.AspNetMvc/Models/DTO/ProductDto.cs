@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Serialization;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 
@@ -11,7 +12,7 @@ namespace GB.AspNetMvc.Models.DTO
 
         [Required]
         [Display(Name ="Наименование товара")]
-        [StringLength(255, MinimumLength = 3)]
+        [StringLength(255, MinimumLength = 3, ErrorMessage ="Название должно быть не короче 3-х символов!")]
         public string Name { get; set; }
 
         [Required]
