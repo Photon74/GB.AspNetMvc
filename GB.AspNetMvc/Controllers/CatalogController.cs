@@ -30,8 +30,8 @@ namespace GB.AspNetMvc.Controllers
 
         public IActionResult ProductsList()
         {
-            var Products = _productService.GetProducts();
-            return View(Products);
+            var products = _productService.GetProducts();
+            return View(products);
         }
 
         public IActionResult ProductDeleting(Guid id)
