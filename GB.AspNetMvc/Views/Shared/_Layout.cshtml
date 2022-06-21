@@ -1,29 +1,28 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - GB.AspNetMvc</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/GB.AspNetMvc.styles.css" asp-append-version="true"/>
+    
+    <partial name="Partial/_Styles" />
+    
+    @await RenderSectionAsync("Styles", false)
 </head>
 <body>
 
+<partial name="Partial/_Header" />
+    
 <div class="container">
-    <main role="main" class="pb-3">
+    <main role="main" class="pb-3 main">
         @RenderBody()
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; @DateTime.Now.Year - GB.AspNetMvc - All rights reserved <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>.
-    </div>
-</footer>
-<script src="~/lib/jquery/dist/jquery.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
+<partial name="Partial/_Footer" />
+
+<partial name="Partial/_Scripts"/>
+
 @await RenderSectionAsync("Scripts", false)
 </body>
 </html>
