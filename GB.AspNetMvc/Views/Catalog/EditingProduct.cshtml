@@ -1,0 +1,33 @@
+﻿@model GB.AspNetMvc.Models.DTO.ProductDto
+
+@{
+    ViewData["Title"] = "Редактирование продукта";
+}
+
+<h1>Редактирование продукта</h1>
+
+<br>
+        <form method="post" asp-route-id="@Model.Id">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <p>
+                <label asp-for="Name" class="form-label"></label><br/>
+                <input asp-for="Name" type="text" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </p>
+
+            <p>
+                <label asp-for="Category"></label><br/>
+                <select asp-for="Category">
+                    <option disabled selected>Выберите категорию</option>
+                    <option value="Food">Продукты питания</option>
+                    <option value="Clothes">Одежда</option>
+                </select>
+                <span asp-validation-for="Category"></span>
+            </p>
+
+            <p>
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+                <a asp-action="ProductsList" class="btn btn-outline-danger">Отмена</a>
+            </p>
+        </form>

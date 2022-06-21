@@ -16,8 +16,7 @@ namespace GB.AspNetMvc.Models.Services
         public List<ProductDto> GetProducts()
         {
             var products = _catalogRepository.GetAllProducts();
-
-            return products == null
+            return products == null! || products.Count == 0
                 ? new List<ProductDto>()
                 : products.Select(product =>
                     new ProductDto
@@ -42,6 +41,30 @@ namespace GB.AspNetMvc.Models.Services
         public void DeleteProduct(Guid id)
         {
             _catalogRepository.DeleteProduct(id);
+        }
+
+        public ProductDto? GetProductById(Guid id)
+        {
+            var product = _catalogRepository.GetProductById(id);
+            return product == null
+                ? null
+                : new ProductDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Category = product.Category,
+                };
+        }
+
+        public void EditProduct(ProductDto productDto)
+        {
+            var product = new Product
+            {
+                Id = productDto.Id,
+                Name = productDto.Name,
+                Category = productDto.Category,
+            };
+            _catalogRepository.UpdateProduct(product);
         }
     }
 }

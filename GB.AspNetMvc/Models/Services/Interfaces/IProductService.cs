@@ -8,9 +8,8 @@ namespace GB.AspNetMvc.Models.Services.Interfaces
         void AddProduct(ProductDto productDto);
         void DeleteProduct(Guid id);
 
-
-        //Product GetProductById(int id);
-        //Product GetProductByName(string productName);
         //void UpdateProduct(Product product);
+        ProductDto? GetProductById(Guid id);
+        void EditProduct(ProductDto productDto);
     }
 }

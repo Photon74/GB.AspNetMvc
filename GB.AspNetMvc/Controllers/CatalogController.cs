@@ -34,9 +34,24 @@ namespace GB.AspNetMvc.Controllers
             return View(products);
         }
 
+        [HttpGet]
+        public IActionResult EditingProduct(Guid id)
+        {
+            var product = _productService.GetProductById(id);
+            return product == null ? NotFound() : View(product);
+        }
+
+        [HttpPost]
+        public IActionResult EditingProduct(ProductDto productDto)
+        {
+            if (!ModelState.IsValid) return View(productDto);
+
+            _productService.EditProduct(productDto);
+            return RedirectToAction("ProductsList");
+        }
+
         public IActionResult ProductDeleting(Guid id)
         {
-            //TODO доделать контроллер!
             _productService.DeleteProduct(id);
 
             return RedirectToAction("ProductsList");
