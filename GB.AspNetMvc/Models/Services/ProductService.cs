@@ -7,10 +7,12 @@ namespace GB.AspNetMvc.Models.Services
     public class ProductService : IProductService
     {
         private readonly ICatalogRepository _catalogRepository;
+        private readonly IMailSenderService _mailSenderService;
 
-        public ProductService(ICatalogRepository catalogRepository)
+        public ProductService(ICatalogRepository catalogRepository, IMailSenderService mailSenderService)
         {
             _catalogRepository = catalogRepository;
+            _mailSenderService = mailSenderService;
         }
 
         public List<ProductDto> GetProducts()
@@ -36,6 +38,7 @@ namespace GB.AspNetMvc.Models.Services
                 Category = productDto.Category,
             };
             _catalogRepository.AddProduct(product);
+            _mailSenderService.SendMail(product);
         }
 
         public void DeleteProduct(Guid id)

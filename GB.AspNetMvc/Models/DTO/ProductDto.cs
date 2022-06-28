@@ -10,12 +10,12 @@ namespace GB.AspNetMvc.Models.DTO
         [HiddenInput(DisplayValue = false)]
         public Guid Id { get; set; }
 
-        [Required]
-        [Display(Name ="Наименование товара")]
+        [Required(ErrorMessage ="Укажите название товара!")]
+        [Display(Name ="Название товара")]
         [StringLength(255, MinimumLength = 3, ErrorMessage ="Название должно быть не короче 3-х символов!")]
         public string Name { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="Выберите категорию товара!")]
         [Display(Name = "Категория товара")]
         public Category Category { get; set; }
     }
