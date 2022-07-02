@@ -7,16 +7,19 @@ namespace GB.AspNetMvc.Controllers
     public class CatalogController : Controller
     {
         private readonly IProductService _productService;
+        private readonly ILogger<CatalogController> _logger;
 
-        public CatalogController(IProductService productService)
+        public CatalogController(IProductService productService, ILogger<CatalogController> logger)
         {
             _productService = productService;
+            _logger = logger;
         }
 
         [HttpPost]
         public IActionResult AddingProduct([FromForm] ProductDto productDto)
         {
             if (!ModelState.IsValid) return View(productDto);
+            _logger.LogInformation("Добавление нового товара {@productDto}", productDto);
 
             _productService.AddProduct(productDto);
             return RedirectToAction("ProductsList");

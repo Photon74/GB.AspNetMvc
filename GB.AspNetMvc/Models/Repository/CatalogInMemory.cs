@@ -5,34 +5,77 @@ namespace GB.AspNetMvc.Models.Repository
 {
     public class CatalogInMemory : ICatalogRepository
     {
+        private readonly ILogger<CatalogInMemory> _logger;
         private ConcurrentDictionary<Guid, ProductEntity>? Products { get; set; }
+
+        public CatalogInMemory(ILogger<CatalogInMemory> logger)
+        {
+            _logger = logger;
+        }
 
         public IReadOnlyList<Product> GetAllProducts()
         {
-            return Products?.Select(product =>
-                new Product
-                {
-                    Id = product.Key,
-                    Name = product.Value.Name,
-                    Category = product.Value.Category,
-                }).ToList()!;
+            try
+            {
+                var res = Products?.Select(product =>
+                        new Product
+                        {
+                            Id = product.Key,
+                            Name = product.Value.Name,
+                            Category = product.Value.Category,
+                        }).ToList()!;
+
+                _logger.LogInformation("Получен список товаров");
+
+                return res;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Не удалось получить список товаров!");
+                throw;
+            }
         }
 
-        public void AddProduct(Product product)
+        public bool AddProduct(Product product)
         {
-            Products ??= new ConcurrentDictionary<Guid, ProductEntity>();
-
-            var productEntity = new ProductEntity
+            try
             {
-                Name = product.Name,
-                Category = product.Category,
-            };
-            Products.TryAdd(product.Id, productEntity);
+                Products ??= new ConcurrentDictionary<Guid, ProductEntity>();
+
+                var productEntity = new ProductEntity
+                {
+                    Name = product.Name,
+                    Category = product.Category,
+                };
+                var res = Products.TryAdd(product.Id, productEntity);
+
+                _logger.LogInformation("Добавлен новый товар {@product}", product);
+
+                return res;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Не удалось добавить товар {@product}", product);
+                throw;
+            }
         }
 
         public void DeleteProduct(Guid id)
         {
-            if (Products != null) Products.TryRemove(id, out _);
+            if (Products == null) return;
+            try
+            {
+                if (Products.TryRemove(id, out _))
+                {
+                    _logger.LogInformation("Удаление товара с ID: {@id}", id);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Не удалось удалить товар с ID: {@id}", id);
+                throw;
+            }
+
         }
 
         public Product? GetProductById(Guid id)
@@ -52,13 +95,21 @@ namespace GB.AspNetMvc.Models.Repository
         public void UpdateProduct(Product product)
         {
             if (Products == null) return;
-            var oldProduct = Products.FirstOrDefault(p => p.Key == product.Id);
-            var productEntity = new ProductEntity
+            try
             {
-                Name = product.Name,
-                Category = product.Category,
-            };
-            Products.TryUpdate(product.Id, productEntity, oldProduct.Value);
+                var oldProduct = Products.FirstOrDefault(p => p.Key == product.Id);
+                var productEntity = new ProductEntity
+                {
+                    Name = product.Name,
+                    Category = product.Category,
+                };
+                Products.TryUpdate(product.Id, productEntity, oldProduct.Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Не удалось обновить товар: {@product}", product);
+                throw;
+            }
         }
     }
 }

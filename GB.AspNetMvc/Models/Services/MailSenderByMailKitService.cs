@@ -10,11 +10,11 @@ namespace GB.AspNetMvc.Models.Services
         private readonly ILogger _logger;
         private MailSettings MailSettings { get; }
 
-        public MailSenderByMailKitService(ILogger<MailSenderByMailKitService> logger, IOptions<MailSettings> options)
+        public MailSenderByMailKitService(ILogger<MailSenderByMailKitService> logger,
+                                          IOptionsSnapshot<MailSettings> options)
         {
             _logger = logger;
             MailSettings = options.Value;
-
         }
 
         public void SendMail(Product product)
@@ -40,11 +40,11 @@ namespace GB.AspNetMvc.Models.Services
 
                 client.Disconnect(true);
 
-                _logger.LogInformation("Отправлено успешно!");
+                _logger.LogInformation("Сообщение о добалении товара отправлено успешно!");
             }
             catch (Exception e)
             {
-                _logger.LogError(e.GetBaseException().Message);
+                _logger.LogError(e, "Не удалось отправить сообщение о добавлении товара!");
             }
         }
     }
