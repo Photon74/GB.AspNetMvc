@@ -6,7 +6,7 @@ namespace GB.AspNetMvc.Models.Repository
     public class CatalogInMemory : ICatalogRepository
     {
         private readonly ILogger<CatalogInMemory> _logger;
-        private ConcurrentDictionary<Guid, ProductEntity>? Products { get; set; }
+        private ConcurrentDictionary<Guid, ProductEntity> Products { get; set; } = new();
 
         public CatalogInMemory(ILogger<CatalogInMemory> logger)
         {
@@ -17,13 +17,13 @@ namespace GB.AspNetMvc.Models.Repository
         {
             try
             {
-                var res = Products?.Select(product =>
+                var res = Products.Select(product =>
                         new Product
                         {
                             Id = product.Key,
                             Name = product.Value.Name,
                             Category = product.Value.Category,
-                        }).ToList()!;
+                        }).ToList();
 
                 _logger.LogInformation("Получен список товаров");
 
@@ -40,8 +40,6 @@ namespace GB.AspNetMvc.Models.Repository
         {
             try
             {
-                Products ??= new ConcurrentDictionary<Guid, ProductEntity>();
-
                 var productEntity = new ProductEntity
                 {
                     Name = product.Name,
@@ -62,7 +60,6 @@ namespace GB.AspNetMvc.Models.Repository
 
         public void DeleteProduct(Guid id)
         {
-            if (Products == null) return;
             try
             {
                 if (Products.TryRemove(id, out _))
@@ -78,32 +75,29 @@ namespace GB.AspNetMvc.Models.Repository
 
         }
 
-        public Product? GetProductById(Guid id)
+        public Product GetProductById(Guid id)
         {
-            if (Products == null) return null;
-
-            var res = Products.FirstOrDefault(p => p.Key == id);
+            var res = Products[id];
             var product = new Product
             {
-                Id = res.Key,
-                Name = res.Value.Name,
-                Category = res.Value.Category,
+                Id = id,
+                Name = res.Name,
+                Category = res.Category,
             };
             return product;
         }
 
         public void UpdateProduct(Product product)
         {
-            if (Products == null) return;
             try
             {
-                var oldProduct = Products.FirstOrDefault(p => p.Key == product.Id);
+                var oldProduct = Products[product.Id];
                 var productEntity = new ProductEntity
                 {
                     Name = product.Name,
                     Category = product.Category,
                 };
-                Products.TryUpdate(product.Id, productEntity, oldProduct.Value);
+                Products.TryUpdate(product.Id, productEntity, oldProduct);
             }
             catch (Exception e)
             {
