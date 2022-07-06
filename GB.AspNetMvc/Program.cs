@@ -3,6 +3,7 @@ using GB.AspNetMvc.Models.Repository;
 using GB.AspNetMvc.Models.Repository.Interfaces;
 using GB.AspNetMvc.Models.Services;
 using GB.AspNetMvc.Models.Services.Interfaces;
+using MailKit.Net.Smtp;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
@@ -22,6 +23,7 @@ try
     builder.Services.AddScoped<IProductService, ProductService>();
     builder.Services.AddSingleton<ICatalogRepository, CatalogInMemory>();
     builder.Services.AddScoped<IMailSenderService, MailSenderByMailKitService>();
+    builder.Services.AddScoped<SmtpClient>();
 
     builder.Host.UseSerilog((_, conf) =>
     {

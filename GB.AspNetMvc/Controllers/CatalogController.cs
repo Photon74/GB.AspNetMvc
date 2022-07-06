@@ -16,12 +16,12 @@ namespace GB.AspNetMvc.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddingProduct([FromForm] ProductDto productDto)
+        public async Task<IActionResult> AddingProduct([FromForm] ProductDto productDto)
         {
             if (!ModelState.IsValid) return View(productDto);
             _logger.LogInformation("Добавление нового товара {@productDto}", productDto);
 
-            _productService.AddProduct(productDto);
+            await _productService.AddProduct(productDto);
             return RedirectToAction("ProductsList");
         }
 

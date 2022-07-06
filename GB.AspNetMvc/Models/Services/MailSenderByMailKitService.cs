@@ -7,16 +7,19 @@ using Polly.Retry;
 
 namespace GB.AspNetMvc.Models.Services
 {
-    public class MailSenderByMailKitService : IMailSenderService
+    public class MailSenderByMailKitService : IMailSenderService, IDisposable
     {
+        private readonly SmtpClient _smtpClient;
         private readonly ILogger _logger;
         private MailSettings MailSettings { get; }
 
         public MailSenderByMailKitService(ILogger<MailSenderByMailKitService> logger,
-                                          IOptionsSnapshot<MailSettings> options)
+                                          IOptionsSnapshot<MailSettings> options, 
+                                          SmtpClient smtpClient)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
             _logger = logger;
+            _smtpClient = smtpClient;
             MailSettings = options.Value;
         }
 
@@ -53,22 +56,37 @@ namespace GB.AspNetMvc.Models.Services
                                $"<p>Категория товара: {product.Category}</p></div>"
                 }.ToMessageBody();
 
-                using var client = new SmtpClient();
-                client.Connect(MailSettings.Host, 465, true);
-                client.Authenticate(MailSettings.Login, MailSettings.Password);
-                client.Send(message);
+                ConnectAndAuthenticate();
 
-                client.Disconnect(true);
+                _smtpClient.Send(message);
+
+                _smtpClient.Disconnect(true);
 
                 _logger.LogInformation("Сообщение о добалении товара отправлено успешно!");
             }
             catch (Exception e)
             {
-                //throw;
                 _logger.LogError(e, "Не удалось отправить сообщение о добавлении товара!");
             }
 
             return Task.CompletedTask;
+        }
+
+        private void ConnectAndAuthenticate()
+        {
+            if (!_smtpClient.IsConnected)
+                _smtpClient.Connect(MailSettings.Host, 465, true);
+
+            if(!_smtpClient.IsAuthenticated)
+                _smtpClient.Authenticate(MailSettings.Login, MailSettings.Password);
+        }
+
+        public void Dispose()
+        {
+            if (_smtpClient.IsConnected)
+                _smtpClient.Disconnect(true);
+
+            _smtpClient.Dispose();
         }
     }
 }

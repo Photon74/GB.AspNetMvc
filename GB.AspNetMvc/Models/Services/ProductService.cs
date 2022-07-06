@@ -29,7 +29,7 @@ namespace GB.AspNetMvc.Models.Services
                     }).ToList();
         }
 
-        public void AddProduct(ProductDto productDto)
+        public async Task AddProduct(ProductDto productDto)
         {
             var product = new Product
             {
@@ -39,7 +39,7 @@ namespace GB.AspNetMvc.Models.Services
             };
             var isAdded = _catalogRepository.AddProduct(product);
 
-            _mediator.Publish(product, isAdded);
+            await _mediator.Publish(product, isAdded);
         }
 
         public void DeleteProduct(Guid id)
