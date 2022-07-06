@@ -2,5 +2,5 @@
 
 public interface IMediator
 {
-    void Publish(Product product, bool isAdded);
+    Task Publish(Product product, bool isAdded);
 }

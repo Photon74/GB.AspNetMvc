@@ -2,6 +2,6 @@
 {
     public interface IMailSenderService
     {
-        void SendMail(Product product);
+        Task SendMail(Product product);
     }
 }

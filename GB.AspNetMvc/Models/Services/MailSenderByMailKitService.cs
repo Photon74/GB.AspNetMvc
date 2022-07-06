@@ -2,6 +2,8 @@
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Polly;
+using Polly.Retry;
 
 namespace GB.AspNetMvc.Models.Services
 {
@@ -13,11 +15,29 @@ namespace GB.AspNetMvc.Models.Services
         public MailSenderByMailKitService(ILogger<MailSenderByMailKitService> logger,
                                           IOptionsSnapshot<MailSettings> options)
         {
+            if (options == null) throw new ArgumentNullException(nameof(options));
             _logger = logger;
             MailSettings = options.Value;
         }
 
-        public void SendMail(Product product)
+        public async Task SendMail(Product product)
+        {
+            var policy = Policy
+                         .Handle<Exception>()
+                         .RetryAsync(3, (exception, retryAttempt) =>
+                         {
+                             _logger.LogWarning(exception, "Ошибка во время отправки письма. Попытка: {Attempt}", retryAttempt);
+                         });
+
+            var result = await policy.ExecuteAndCaptureAsync(() => Send(product));
+
+            if (result.Outcome == OutcomeType.Failure)
+            {
+                _logger.LogError(result.FinalException, "Не удалось отправить письмо");
+            }
+        }
+
+        private Task Send(Product product)
         {
             try
             {
@@ -44,8 +64,11 @@ namespace GB.AspNetMvc.Models.Services
             }
             catch (Exception e)
             {
+                //throw;
                 _logger.LogError(e, "Не удалось отправить сообщение о добавлении товара!");
             }
+
+            return Task.CompletedTask;
         }
     }
 }
