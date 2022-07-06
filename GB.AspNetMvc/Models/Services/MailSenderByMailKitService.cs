@@ -3,7 +3,6 @@ using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using Polly;
-using Polly.Retry;
 
 namespace GB.AspNetMvc.Models.Services
 {
@@ -32,7 +31,7 @@ namespace GB.AspNetMvc.Models.Services
                              _logger.LogWarning(exception, "Ошибка во время отправки письма. Попытка: {Attempt}", retryAttempt);
                          });
 
-            var result = await policy.ExecuteAndCaptureAsync(() => Send(product));
+            var result = await policy.ExecuteAndCaptureAsync(async () => await SendAsync(product));
 
             if (result.Outcome == OutcomeType.Failure)
             {
@@ -40,7 +39,7 @@ namespace GB.AspNetMvc.Models.Services
             }
         }
 
-        private Task Send(Product product)
+        private async Task SendAsync(Product product)
         {
             try
             {
@@ -56,11 +55,9 @@ namespace GB.AspNetMvc.Models.Services
                                $"<p>Категория товара: {product.Category}</p></div>"
                 }.ToMessageBody();
 
-                ConnectAndAuthenticate();
+                await ConnectAndAuthenticateAsync();
 
-                _smtpClient.Send(message);
-
-                _smtpClient.Disconnect(true);
+                await _smtpClient.SendAsync(message);
 
                 _logger.LogInformation("Сообщение о добалении товара отправлено успешно!");
             }
@@ -68,17 +65,15 @@ namespace GB.AspNetMvc.Models.Services
             {
                 _logger.LogError(e, "Не удалось отправить сообщение о добавлении товара!");
             }
-
-            return Task.CompletedTask;
         }
 
-        private void ConnectAndAuthenticate()
+        private async Task ConnectAndAuthenticateAsync()
         {
             if (!_smtpClient.IsConnected)
-                _smtpClient.Connect(MailSettings.Host, 465, true);
+                await _smtpClient.ConnectAsync(MailSettings.Host, 465, true);
 
             if(!_smtpClient.IsAuthenticated)
-                _smtpClient.Authenticate(MailSettings.Login, MailSettings.Password);
+                await _smtpClient.AuthenticateAsync(MailSettings.Login, MailSettings.Password);
         }
 
         public void Dispose()
