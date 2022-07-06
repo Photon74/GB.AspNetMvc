@@ -7,13 +7,11 @@ namespace GB.AspNetMvc.Models.Services
     public class ProductService : IProductService
     {
         private readonly ICatalogRepository _catalogRepository;
-        private readonly IMailSenderService _mailSenderService;
         private readonly IMediator _mediator;
 
-        public ProductService(ICatalogRepository catalogRepository, IMailSenderService mailSenderService, IMediator mediator)
+        public ProductService(ICatalogRepository catalogRepository, IMediator mediator)
         {
             _catalogRepository = catalogRepository;
-            _mailSenderService = mailSenderService;
             _mediator = mediator;
         }
 
@@ -42,8 +40,6 @@ namespace GB.AspNetMvc.Models.Services
             var isAdded = _catalogRepository.AddProduct(product);
 
             _mediator.Publish(product, isAdded);
-
-            _mailSenderService.SendMail(product);
         }
 
         public void DeleteProduct(Guid id)
