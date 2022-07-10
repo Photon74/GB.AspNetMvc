@@ -18,6 +18,8 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
+    builder.Services.AddHostedService<Watcher>();
+
     builder.Services.AddControllersWithViews();
     builder.Services.AddScoped<IMediator, Mediator>();
     builder.Services.AddScoped<IProductService, ProductService>();
