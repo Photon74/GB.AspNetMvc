@@ -6,7 +6,7 @@ using Polly;
 
 namespace GB.AspNetMvc.Models.Services
 {
-    public class MailSenderByMailKitService : IMailSenderService, IDisposable
+    public class MailSenderByMailKitService : IMailSenderService, IDisposable, IAsyncDisposable
     {
         private readonly SmtpClient _smtpClient;
         private readonly ILogger _logger;
@@ -80,6 +80,14 @@ namespace GB.AspNetMvc.Models.Services
         {
             if (_smtpClient.IsConnected)
                 _smtpClient.Disconnect(true);
+
+            _smtpClient.Dispose();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_smtpClient.IsConnected)
+                await _smtpClient.DisconnectAsync(true);
 
             _smtpClient.Dispose();
         }

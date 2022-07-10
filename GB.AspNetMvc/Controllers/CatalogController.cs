@@ -16,12 +16,12 @@ namespace GB.AspNetMvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddingProduct([FromForm] ProductDto productDto)
+        public async Task<IActionResult> AddingProduct([FromForm] ProductDto productDto, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid) return View(productDto);
             _logger.LogInformation("Добавление нового товара {@productDto}", productDto);
 
-            await _productService.AddProduct(productDto);
+            await _productService.AddProduct(productDto, cancellationToken);
             return RedirectToAction("ProductsList");
         }
 

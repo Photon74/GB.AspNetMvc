@@ -8,11 +8,13 @@ namespace GB.AspNetMvc.Models.Services
     {
         private readonly ICatalogRepository _catalogRepository;
         private readonly IMediator _mediator;
+        private readonly ILogger<ProductService> _logger;
 
-        public ProductService(ICatalogRepository catalogRepository, IMediator mediator)
+        public ProductService(ICatalogRepository catalogRepository, IMediator mediator, ILogger<ProductService> logger)
         {
             _catalogRepository = catalogRepository;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public List<ProductDto> GetProducts()
@@ -29,17 +31,29 @@ namespace GB.AspNetMvc.Models.Services
                     }).ToList();
         }
 
-        public async Task AddProduct(ProductDto productDto)
+        public async Task AddProduct(ProductDto productDto, CancellationToken cancellationToken)
         {
-            var product = new Product
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = productDto.Name,
-                Category = productDto.Category,
-            };
-            var isAdded = _catalogRepository.AddProduct(product);
+                if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
 
-            await _mediator.Publish(product, isAdded);
+                var product = new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = productDto.Name,
+                    Category = productDto.Category,
+                };
+                var isAdded = _catalogRepository.AddProduct(product);
+
+                await _mediator.Publish(product, isAdded);
+            }
+            catch (AggregateException ae)
+            {
+                foreach (var e in ae.InnerExceptions)
+                {
+                    if(e is TaskCanceledException) _logger.LogWarning("Добавление товара отменено!", e.Message);
+                }
+            }
         }
 
         public void DeleteProduct(Guid id)
