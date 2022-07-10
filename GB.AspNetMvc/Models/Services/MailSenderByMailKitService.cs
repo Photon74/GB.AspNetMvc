@@ -26,7 +26,8 @@ namespace GB.AspNetMvc.Models.Services
         {
             var policy = Policy
                          .Handle<Exception>()
-                         .RetryAsync(3, (exception, retryAttempt) =>
+                         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(retryAttempt, 2)),
+                             (exception, retryAttempt) =>
                          {
                              _logger.LogWarning(exception, "Ошибка во время отправки письма. Попытка: {Attempt}", retryAttempt);
                          });
