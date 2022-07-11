@@ -3,7 +3,9 @@
     public interface ICatalogRepository
     {
         IReadOnlyList<Product> GetAllProducts();
-        void AddProduct(Product product);
+        bool AddProduct(Product product);
         void DeleteProduct(Guid id);
+        Product? GetProductById(Guid id);
+        void UpdateProduct(Product product);
     }
 }
