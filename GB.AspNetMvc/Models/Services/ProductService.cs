@@ -45,7 +45,7 @@ namespace GB.AspNetMvc.Models.Services
                 };
                 var isAdded = _catalogRepository.AddProduct(product);
 
-                await _mediator.Publish(product, isAdded);
+                await _mediator.Publish(product, isAdded, cancellationToken);
             }
             catch (AggregateException ae)
             {

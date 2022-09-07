@@ -2,6 +2,6 @@
 {
     public interface IMailSenderService
     {
-        Task SendMail(Product product);
+        Task SendMail(Product product, CancellationToken cancellationToken);
     }
 }

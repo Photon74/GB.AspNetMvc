@@ -11,9 +11,9 @@ namespace GB.AspNetMvc.Models.Services
             _mailSenderService = mailSenderService;
         }
 
-        public async Task Publish(Product product, bool isAdded)
+        public async Task Publish(Product product, bool isAdded, CancellationToken cancellationToken)
         {
-            if(isAdded) await _mailSenderService.SendMail(product);
+            if (isAdded) await _mailSenderService.SendMail(product, cancellationToken);
         }
     }
 }

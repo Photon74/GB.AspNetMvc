@@ -1,8 +1,10 @@
 ﻿using GB.AspNetMvc.Models.Services.Interfaces;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using Polly;
+using System.Security.Authentication;
 
 namespace GB.AspNetMvc.Models.Services
 {
@@ -22,7 +24,7 @@ namespace GB.AspNetMvc.Models.Services
             MailSettings = options.Value;
         }
 
-        public async Task SendMail(Product product)
+        public async Task SendMail(Product product, CancellationToken cancellationToken)
         {
             var policy = Policy
                          .Handle<Exception>()
@@ -32,7 +34,7 @@ namespace GB.AspNetMvc.Models.Services
                              _logger.LogWarning(exception, "Ошибка во время отправки письма. Попытка: {Attempt}", retryAttempt);
                          });
 
-            var result = await policy.ExecuteAndCaptureAsync(async () => await SendAsync(product));
+            var result = await policy.ExecuteAndCaptureAsync(token => SendAsync(product, token), cancellationToken);
 
             if (result.Outcome == OutcomeType.Failure)
             {
@@ -40,8 +42,10 @@ namespace GB.AspNetMvc.Models.Services
             }
         }
 
-        private async Task SendAsync(Product product)
+        private async Task SendAsync(Product product, CancellationToken cancellationToken)
         {
+            if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
                 var message = new MimeMessage();
@@ -58,7 +62,7 @@ namespace GB.AspNetMvc.Models.Services
 
                 await ConnectAndAuthenticateAsync();
 
-                await _smtpClient.SendAsync(message);
+                await _smtpClient.SendAsync(message, cancellationToken);
 
                 _logger.LogInformation("Сообщение о добалении товара отправлено успешно!");
             }
@@ -70,6 +74,8 @@ namespace GB.AspNetMvc.Models.Services
 
         private async Task ConnectAndAuthenticateAsync()
         {
+            _smtpClient.CheckCertificateRevocation = false;
+            _smtpClient.SslProtocols = SslProtocols.Ssl3 | SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13;
             if (!_smtpClient.IsConnected)
                 await _smtpClient.ConnectAsync(MailSettings.Host, 465, true);
 
