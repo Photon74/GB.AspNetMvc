@@ -7,19 +7,21 @@ namespace GB.AspNetMvc.Controllers
     public class CatalogController : Controller
     {
         private readonly IProductService _productService;
-        private Object obj = new();
+        private readonly ILogger<CatalogController> _logger;
 
-        public CatalogController(IProductService productService)
+        public CatalogController(IProductService productService, ILogger<CatalogController> logger)
         {
             _productService = productService;
+            _logger = logger;
         }
 
         [HttpPost]
-        public IActionResult AddingProduct([FromForm] ProductDto productDto)
+        public async Task<IActionResult> AddingProduct([FromForm] ProductDto productDto, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid) return View(productDto);
+            _logger.LogInformation("Добавление нового товара {@productDto}", productDto);
 
-            _productService.AddProduct(productDto);
+            await _productService.AddProduct(productDto, cancellationToken);
             return RedirectToAction("ProductsList");
         }
 
@@ -31,8 +33,24 @@ namespace GB.AspNetMvc.Controllers
 
         public IActionResult ProductsList()
         {
-            ViewBag.Products = _productService.GetProducts();
-            return View();
+            var products = _productService.GetProducts();
+            return View(products);
+        }
+
+        [HttpGet]
+        public IActionResult EditingProduct(Guid id)
+        {
+            var product = _productService.GetProductById(id);
+            return product == null ? NotFound() : View(product);
+        }
+
+        [HttpPost]
+        public IActionResult EditingProduct(ProductDto productDto)
+        {
+            if (!ModelState.IsValid) return View(productDto);
+
+            _productService.EditProduct(productDto);
+            return RedirectToAction("ProductsList");
         }
 
         public IActionResult ProductDeleting(Guid id)
@@ -41,7 +59,5 @@ namespace GB.AspNetMvc.Controllers
 
             return RedirectToAction("ProductsList");
         }
-
-        //public List<ProductDto> Products { get; set; }
     }
 }
